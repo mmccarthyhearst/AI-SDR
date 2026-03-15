@@ -19,8 +19,10 @@ async def run_pipeline(ctx: dict, run_id: str, icp_id: str | None = None, max_le
     Returns:
         Dict with run_id, status, result/error.
     """
+    from ai_sdr.agents.crew import run_crew_with_persistence
     from ai_sdr.db.session import async_session_factory
     from ai_sdr.services.icp_service import get_icp, list_icps
+    from ai_sdr.services.pipeline_service import prepare_crew_inputs
 
     run_uuid = uuid.UUID(run_id)
     logger.info(f"Starting pipeline run {run_id}")
@@ -36,42 +38,17 @@ async def run_pipeline(ctx: dict, run_id: str, icp_id: str | None = None, max_le
             if not icp:
                 return {"run_id": run_id, "status": "failed", "error": "No active ICP found"}
 
-            from ai_sdr.services.pipeline_service import prepare_crew_inputs
             crew_inputs = await prepare_crew_inputs(session, icp, max_leads=max_leads)
 
-        from ai_sdr.agents.crew import create_sdr_crew
-        from ai_sdr.services.pipeline_service import (
-            complete_pipeline_run,
-            fail_pipeline_run,
-            start_pipeline_run,
+        result = await run_crew_with_persistence(
+            inputs=crew_inputs,
+            run_id=run_uuid,
+            session_factory=async_session_factory,
         )
-
-        async with async_session_factory() as session:
-            await start_pipeline_run(session, run_uuid)
-
-        crew = create_sdr_crew(
-            icp_criteria=crew_inputs["icp_criteria"],
-            scoring_weights=crew_inputs.get("scoring_weights", "{}"),
-            routing_rules=crew_inputs.get("routing_rules", "[]"),
-            max_leads=crew_inputs.get("max_leads", max_leads),
-        )
-        result = crew.kickoff()
-
-        async with async_session_factory() as session:
-            await complete_pipeline_run(session, run_uuid)
-
         logger.info(f"Pipeline run {run_id} completed")
-        return {"run_id": run_id, "status": "completed", "result": str(result)}
+        return result
     except Exception as e:
         logger.error(f"Pipeline run {run_id} failed: {e}")
-        try:
-            from ai_sdr.db.session import async_session_factory
-            from ai_sdr.services.pipeline_service import fail_pipeline_run
-
-            async with async_session_factory() as session:
-                await fail_pipeline_run(session, run_uuid, str(e))
-        except Exception:
-            pass
         return {"run_id": run_id, "status": "failed", "error": str(e)}
 
 
