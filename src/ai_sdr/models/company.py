@@ -2,7 +2,7 @@
 
 import uuid
 
-from sqlalchemy import JSON, String, Text
+from sqlalchemy import JSON, Boolean, ForeignKey, Integer, String, Text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -24,6 +24,17 @@ class Company(TimestampMixin, Base):
     funding_stage: Mapped[str | None] = mapped_column(String(100))
     last_funding_amount: Mapped[str | None] = mapped_column(String(100))
     description: Mapped[str | None] = mapped_column(Text)
+
+    # Franchise-specific fields
+    is_franchisor: Mapped[bool] = mapped_column(Boolean, default=False, index=True)
+    franchise_brand: Mapped[str | None] = mapped_column(String(255), index=True)
+    franchise_count: Mapped[int | None] = mapped_column(Integer)
+    franchise_fee_range: Mapped[str | None] = mapped_column(String(100))
+    franchise_territories: Mapped[list | None] = mapped_column(JSON)
+    franchise_network_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("companies.id")
+    )
+
     linkedin_url: Mapped[str | None] = mapped_column(String(500))
     crm_id: Mapped[str | None] = mapped_column(String(255), index=True)
     source: Mapped[str] = mapped_column(String(100), default="web_scrape")
@@ -31,7 +42,12 @@ class Company(TimestampMixin, Base):
 
     # Relationships
     contacts: Mapped[list["Contact"]] = relationship(back_populates="company")  # noqa: F821
-    leads: Mapped[list["Lead"]] = relationship(back_populates="company")  # noqa: F821
+    leads: Mapped[list["Lead"]] = relationship(back_populates="company", foreign_keys="[Lead.company_id]")  # noqa: F821
+    franchise_network: Mapped["Company | None"] = relationship(
+        "Company",
+        remote_side="Company.id",
+        foreign_keys="[Company.franchise_network_id]",
+    )
 
     def __repr__(self) -> str:
         return f"<Company {self.name} ({self.domain})>"

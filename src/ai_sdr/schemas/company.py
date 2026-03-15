@@ -3,7 +3,7 @@
 import uuid
 from datetime import datetime
 
-from pydantic import BaseModel, HttpUrl
+from pydantic import BaseModel
 
 
 class CompanyBase(BaseModel):
@@ -18,6 +18,13 @@ class CompanyBase(BaseModel):
     last_funding_amount: str | None = None
     description: str | None = None
     linkedin_url: str | None = None
+    # Franchise-specific fields
+    is_franchisor: bool = False
+    franchise_brand: str | None = None
+    franchise_count: int | None = None
+    franchise_fee_range: str | None = None
+    franchise_territories: list | None = None
+    franchise_network_id: uuid.UUID | None = None
 
 
 class CompanyCreate(CompanyBase):
@@ -34,6 +41,12 @@ class CompanyUpdate(BaseModel):
     funding_stage: str | None = None
     description: str | None = None
     crm_id: str | None = None
+    is_franchisor: bool | None = None
+    franchise_brand: str | None = None
+    franchise_count: int | None = None
+    franchise_fee_range: str | None = None
+    franchise_territories: list | None = None
+    franchise_network_id: uuid.UUID | None = None
 
 
 class CompanyResponse(CompanyBase):

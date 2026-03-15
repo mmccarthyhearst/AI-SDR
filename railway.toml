@@ -1,0 +1,22 @@
+[build]
+builder = "dockerfile"
+dockerfilePath = "Dockerfile"
+
+[deploy]
+startCommand = "alembic upgrade head && uvicorn ai_sdr.main:app --host 0.0.0.0 --port $PORT"
+healthcheckPath = "/health"
+healthcheckTimeout = 30
+restartPolicyType = "on_failure"
+restartPolicyMaxRetries = 3
+
+[[services]]
+name = "api"
+startCommand = "alembic upgrade head && uvicorn ai_sdr.main:app --host 0.0.0.0 --port $PORT"
+
+[[services]]
+name = "worker"
+startCommand = "python -m arq ai_sdr.workers.settings.WorkerSettings"
+
+[[services]]
+name = "dashboard"
+startCommand = "streamlit run src/ai_sdr/ui/app.py --server.port $PORT --server.address 0.0.0.0"

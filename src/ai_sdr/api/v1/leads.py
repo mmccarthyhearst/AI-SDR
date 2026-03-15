@@ -5,7 +5,7 @@ import uuid
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from ai_sdr.api.v1.deps import get_db
+from ai_sdr.api.v1.deps import get_db, verify_api_key
 from ai_sdr.models.lead import LeadStatus, LeadTier
 from ai_sdr.schemas.lead import LeadCreate, LeadResponse, LeadUpdate
 from ai_sdr.services import lead_service
@@ -13,7 +13,7 @@ from ai_sdr.services import lead_service
 router = APIRouter()
 
 
-@router.get("", response_model=list[LeadResponse])
+@router.get("", response_model=list[LeadResponse], dependencies=[Depends(verify_api_key)])
 async def list_leads(
     status: LeadStatus | None = None,
     tier: LeadTier | None = None,
@@ -29,7 +29,7 @@ async def list_leads(
     )
 
 
-@router.get("/{lead_id}", response_model=LeadResponse)
+@router.get("/{lead_id}", response_model=LeadResponse, dependencies=[Depends(verify_api_key)])
 async def get_lead(lead_id: uuid.UUID, db: AsyncSession = Depends(get_db)):
     lead = await lead_service.get_lead(db, lead_id)
     if not lead:
@@ -37,12 +37,12 @@ async def get_lead(lead_id: uuid.UUID, db: AsyncSession = Depends(get_db)):
     return lead
 
 
-@router.post("", response_model=LeadResponse, status_code=201)
+@router.post("", response_model=LeadResponse, status_code=201, dependencies=[Depends(verify_api_key)])
 async def create_lead(data: LeadCreate, db: AsyncSession = Depends(get_db)):
     return await lead_service.create_lead(db, data)
 
 
-@router.patch("/{lead_id}", response_model=LeadResponse)
+@router.patch("/{lead_id}", response_model=LeadResponse, dependencies=[Depends(verify_api_key)])
 async def update_lead(
     lead_id: uuid.UUID, data: LeadUpdate, db: AsyncSession = Depends(get_db)
 ):

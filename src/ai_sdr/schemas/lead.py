@@ -1,11 +1,17 @@
 """Lead schemas."""
 
+from __future__ import annotations
+
 import uuid
 from datetime import datetime
+from typing import TYPE_CHECKING
 
 from pydantic import BaseModel
 
 from ai_sdr.models.lead import LeadStatus, LeadTier
+
+if TYPE_CHECKING:
+    pass
 
 
 class LeadCreate(BaseModel):
@@ -49,8 +55,12 @@ class LeadResponse(BaseModel):
 class LeadDetailResponse(LeadResponse):
     """Lead with nested company and contact info."""
 
-    from ai_sdr.schemas.company import CompanyResponse
-    from ai_sdr.schemas.contact import ContactResponse
-
     company: CompanyResponse | None = None
     contact: ContactResponse | None = None
+
+
+# Deferred imports for forward references
+from ai_sdr.schemas.company import CompanyResponse  # noqa: E402
+from ai_sdr.schemas.contact import ContactResponse  # noqa: E402
+
+LeadDetailResponse.model_rebuild()

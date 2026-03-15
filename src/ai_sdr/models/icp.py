@@ -35,5 +35,12 @@ class ICP(TimestampMixin, Base):
     # Additional criteria as flexible JSON
     custom_criteria: Mapped[dict | None] = mapped_column(JSON)
 
+    # Franchise-specific criteria
+    target_franchise_brands: Mapped[list | None] = mapped_column(JSON)
+    min_franchise_count: Mapped[int | None] = mapped_column(Integer)
+    max_franchise_count: Mapped[int | None] = mapped_column(Integer)
+    is_franchisor_target: Mapped[bool] = mapped_column(Boolean, default=False)
+    is_franchisee_target: Mapped[bool] = mapped_column(Boolean, default=True)
+
     def __repr__(self) -> str:
         return f"<ICP {self.name} active={self.is_active}>"

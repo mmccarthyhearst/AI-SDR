@@ -27,12 +27,8 @@ class Settings(BaseSettings):
     LLM_MAX_TOKENS: int = 4096
     LLM_TEMPERATURE: float = 0.3
 
-    # Enrichment
-    APOLLO_API_KEY: str = ""
-
     # Email
-    EMAIL_PROVIDER: str = "sendgrid"  # "sendgrid" or "resend"
-    SENDGRID_API_KEY: str = ""
+    EMAIL_PROVIDER: str = "resend"  # "resend"
     RESEND_API_KEY: str = ""
     EMAIL_FROM_ADDRESS: str = ""
     EMAIL_FROM_NAME: str = ""
@@ -53,6 +49,7 @@ class Settings(BaseSettings):
     # Web Scraping
     SCRAPER_USER_AGENT: str = "AI-SDR-Bot/0.1"
     SCRAPER_RATE_LIMIT_SECONDS: float = 2.0
+    DUCKDUCKGO_MAX_RESULTS: int = 10
 
 
 settings = Settings()

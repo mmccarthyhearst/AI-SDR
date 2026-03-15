@@ -128,3 +128,103 @@ def get_sales_reps(team: str = "") -> str:
         return "Sales reps:\n" + "\n".join(reps)
     except Exception as e:
         return f"Error fetching sales reps: {e}"
+
+
+@tool
+def update_crm_lead(lead_id: str, status: str, description: str = "") -> str:
+    """Update an existing Salesforce Lead record.
+
+    Args:
+        lead_id: Salesforce Lead ID.
+        status: New status (e.g., 'Working', 'Qualified', 'Unqualified').
+        description: Additional notes to append.
+
+    Returns:
+        Success confirmation or error.
+    """
+    sf = _get_sf_client()
+    if sf is None:
+        return f"[MOCK] Would update Lead {lead_id} status to {status}."
+    try:
+        sf.Lead.update(lead_id, {"Status": status, "Description": description})
+        return f"Updated Lead {lead_id} status to {status}"
+    except Exception as e:
+        return f"Error updating lead {lead_id}: {e}"
+
+
+@tool
+def get_crm_lead(lead_id: str) -> str:
+    """Get a full Salesforce Lead record by ID.
+
+    Args:
+        lead_id: Salesforce Lead ID.
+
+    Returns:
+        Lead details as formatted text.
+    """
+    sf = _get_sf_client()
+    if sf is None:
+        return f"[MOCK] Lead {lead_id}: Jane Smith, VP Sales at Acme Corp."
+    try:
+        lead = sf.Lead.get(lead_id)
+        return (
+            f"Lead: {lead.get('FirstName', '')} {lead.get('LastName', '')}\n"
+            f"Company: {lead.get('Company', 'N/A')}\n"
+            f"Status: {lead.get('Status', 'N/A')}\n"
+            f"Email: {lead.get('Email', 'N/A')}"
+        )
+    except Exception as e:
+        return f"Error fetching lead {lead_id}: {e}"
+
+
+@tool
+def sync_lead_to_crm(
+    first_name: str,
+    last_name: str,
+    email: str,
+    company: str,
+    title: str = "",
+    lead_source: str = "AI SDR",
+    franchise_brand: str = "",
+    franchise_count: str = "",
+) -> str:
+    """Check if lead exists in Salesforce; create if not, update if found.
+    Includes franchise custom context in description.
+
+    Args:
+        first_name: Contact's first name.
+        last_name: Contact's last name.
+        email: Contact's email address.
+        company: Company name.
+        title: Job title.
+        lead_source: Source identifier.
+        franchise_brand: Franchise brand name for context.
+        franchise_count: Number of locations for context.
+
+    Returns:
+        Salesforce Lead ID and action taken.
+    """
+    sf = _get_sf_client()
+    description = (
+        f"Franchise Brand: {franchise_brand} | Locations: {franchise_count}"
+        if franchise_brand else ""
+    )
+    if sf is None:
+        return f"[MOCK] Synced {first_name} {last_name} ({email}) to CRM. Source: {lead_source}."
+    try:
+        result = sf.query(f"SELECT Id FROM Lead WHERE Email = '{email}' LIMIT 1")
+        if result["totalSize"] > 0:
+            lead_id = result["records"][0]["Id"]
+            sf.Lead.update(lead_id, {
+                "Title": title, "LeadSource": lead_source, "Description": description
+            })
+            return f"Updated existing Lead: {lead_id}"
+        else:
+            created = sf.Lead.create({
+                "FirstName": first_name, "LastName": last_name,
+                "Email": email, "Company": company, "Title": title,
+                "LeadSource": lead_source, "Description": description,
+            })
+            return f"Created new Lead: {created['id']}"
+    except Exception as e:
+        return f"Error syncing lead {email}: {e}"

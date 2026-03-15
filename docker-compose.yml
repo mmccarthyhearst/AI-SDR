@@ -43,6 +43,21 @@ services:
     volumes:
       - ./src:/app/src
 
+  worker:
+    build: .
+    command: python -m arq ai_sdr.workers.settings.WorkerSettings
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql+asyncpg://ai_sdr:ai_sdr@postgres:5432/ai_sdr
+      REDIS_URL: redis://redis:6379/0
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
   dashboard:
     build: .
     command: streamlit run src/ai_sdr/ui/app.py --server.port 8501 --server.address 0.0.0.0

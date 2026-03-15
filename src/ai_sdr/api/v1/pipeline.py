@@ -2,11 +2,14 @@
 
 import uuid
 
+from arq import create_pool
+from arq.connections import RedisSettings
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ai_sdr.api.v1.deps import get_db
+from ai_sdr.config import settings
 from ai_sdr.models.agent_run import AgentRun, AgentRunStatus
 from ai_sdr.schemas.agent import PipelineRunRequest, PipelineRunResponse
 from ai_sdr.services import pipeline_service
@@ -32,12 +35,19 @@ async def trigger_pipeline_run(
         db, icp_id=icp_id, trigger="api"
     )
 
-    # In production, this would enqueue to a background worker (ARQ).
-    # For now, we just create the run record and return.
+    redis = await create_pool(RedisSettings.from_dsn(settings.REDIS_URL))
+    await redis.enqueue_job(
+        "run_pipeline",
+        str(run.id),
+        str(icp_id) if icp_id else None,
+        getattr(request, "max_leads", 10),
+    )
+    await redis.aclose()
+
     return PipelineRunResponse(
         run_id=str(run.id),
         status=run.status.value,
-        message="Pipeline run created. Background execution pending worker setup.",
+        message="Pipeline run enqueued for background execution.",
     )
 
 
