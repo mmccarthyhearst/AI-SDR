@@ -8,6 +8,11 @@ source_leads:
     - At least one contact with name, email, title, and seniority
     - Check the CRM for duplicates before including
 
+    Focus on franchise directories (Franchise Gator, Entrepreneur 500, IFA members),
+    search for franchisors with 50+ locations and multi-unit franchisees with 5+ units.
+    For each lead, check if we already have a relationship with another franchisee in the
+    same brand (land-and-expand signal).
+
     Return results as a JSON list of LeadCandidate objects.
   expected_output: >
     A JSON array of LeadCandidate objects, each containing company
@@ -28,6 +33,10 @@ qualify_leads:
     2. Score from 0-100 based on ICP fit
     3. Assign tier: Hot (80+), Warm (50-79), Cold (<50)
     4. Document your reasoning
+
+    Key franchise buying signals: rapid unit expansion (>10% YoY), FDD filing updates,
+    hiring of franchise development staff, territory white space in growing markets,
+    technology stack adoption (POS modernization is a hot signal).
 
     Candidates to evaluate:
     {lead_candidates}
@@ -62,6 +71,10 @@ set_appointments:
     3. Include a booking link in the email
     4. Send the email
     5. Notify the assigned rep via Slack
+
+    Use franchise-specific email templates (send_email_with_template). Reference their
+    location count and growth trajectory. Lead with the land-and-expand story if we have
+    existing relationships in their brand. Sync each lead to Salesforce with franchise context.
 
     Routed leads:
     {routed_leads}
