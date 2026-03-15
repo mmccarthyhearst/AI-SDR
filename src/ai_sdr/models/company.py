@@ -42,7 +42,7 @@ class Company(TimestampMixin, Base):
 
     # Relationships
     contacts: Mapped[list["Contact"]] = relationship(back_populates="company")  # noqa: F821
-    leads: Mapped[list["Lead"]] = relationship(back_populates="company")  # noqa: F821
+    leads: Mapped[list["Lead"]] = relationship(back_populates="company", foreign_keys="[Lead.company_id]")  # noqa: F821
     franchise_network: Mapped["Company | None"] = relationship(
         "Company",
         remote_side="Company.id",

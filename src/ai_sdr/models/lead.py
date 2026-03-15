@@ -66,7 +66,7 @@ class Lead(TimestampMixin, Base):
     is_network_expansion: Mapped[bool] = mapped_column(Boolean, default=False)
 
     # Relationships
-    company: Mapped["Company"] = relationship(back_populates="leads")  # noqa: F821
+    company: Mapped["Company"] = relationship(back_populates="leads", foreign_keys="[Lead.company_id]")  # noqa: F821
     contact: Mapped["Contact"] = relationship(back_populates="leads")  # noqa: F821
     outreach_messages: Mapped[list["Outreach"]] = relationship(back_populates="lead")  # noqa: F821
     appointments: Mapped[list["Appointment"]] = relationship(back_populates="lead")  # noqa: F821

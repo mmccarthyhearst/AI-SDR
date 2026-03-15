@@ -10,7 +10,7 @@ def test_search_company_info_returns_data(monkeypatch):
     )
     from ai_sdr.tools.enrichment import search_company_info
 
-    result = search_company_info("acme.com")
+    result = search_company_info.func("acme.com")
     assert "Acme" in result
 
 
@@ -21,14 +21,14 @@ def test_search_company_info_no_results(monkeypatch):
     )
     from ai_sdr.tools.enrichment import search_company_info
 
-    result = search_company_info("unknowndomain.xyz")
+    result = search_company_info.func("unknowndomain.xyz")
     assert "No information found" in result
 
 
 def test_verify_email_valid_format():
     from ai_sdr.tools.enrichment import verify_email_pattern
 
-    result = verify_email_pattern("bad-email", "example.com")
+    result = verify_email_pattern.func("bad-email", "example.com")
     assert "INVALID" in result
 
 
@@ -38,7 +38,7 @@ def test_verify_email_valid_with_resolving_domain(monkeypatch):
     monkeypatch.setattr("socket.getaddrinfo", lambda host, port: [("AF_INET", None, None, None, ("1.2.3.4", 0))])
     from ai_sdr.tools.enrichment import verify_email_pattern
 
-    result = verify_email_pattern("user@example.com", "example.com")
+    result = verify_email_pattern.func("user@example.com", "example.com")
     assert "PLAUSIBLE" in result
 
 
@@ -51,7 +51,7 @@ def test_verify_email_valid_format_non_resolving_domain(monkeypatch):
     monkeypatch.setattr("socket.getaddrinfo", mock_getaddrinfo)
     from ai_sdr.tools.enrichment import verify_email_pattern
 
-    result = verify_email_pattern("user@nonexistent-domain-xyz.com", "nonexistent-domain-xyz.com")
+    result = verify_email_pattern.func("user@nonexistent-domain-xyz.com", "nonexistent-domain-xyz.com")
     assert "UNKNOWN" in result
 
 
@@ -84,7 +84,7 @@ def test_search_franchise_info_with_location_counts(monkeypatch):
     )
     from ai_sdr.tools.enrichment import search_franchise_info
 
-    result = search_franchise_info("Pizza Palace")
+    result = search_franchise_info.func("Pizza Palace")
     assert "Pizza Palace" in result
     assert "1,200" in result or "locations" in result.lower()
 
@@ -96,7 +96,7 @@ def test_search_franchise_info_no_results(monkeypatch):
     )
     from ai_sdr.tools.enrichment import search_franchise_info
 
-    result = search_franchise_info("Unknown Franchise Co")
+    result = search_franchise_info.func("Unknown Franchise Co")
     assert "No franchise information found" in result
 
 
@@ -112,7 +112,7 @@ def test_search_buying_signals_funding(monkeypatch):
     monkeypatch.setattr("ai_sdr.tools.enrichment._ddg_search", mock_search)
     from ai_sdr.tools.enrichment import search_buying_signals
 
-    result = search_buying_signals("Acme Corp", "acme.com")
+    result = search_buying_signals.func("Acme Corp", "acme.com")
     assert "[FUNDING]" in result
 
 
@@ -123,7 +123,7 @@ def test_search_buying_signals_no_results(monkeypatch):
     )
     from ai_sdr.tools.enrichment import search_buying_signals
 
-    result = search_buying_signals("Tiny Co", "tiny.co")
+    result = search_buying_signals.func("Tiny Co", "tiny.co")
     assert "No recent buying signals found" in result
 
 
@@ -136,7 +136,7 @@ def test_search_contacts_finds_titles(monkeypatch):
     )
     from ai_sdr.tools.enrichment import search_contacts
 
-    result = search_contacts("Acme Corp", "acme.com")
+    result = search_contacts.func("Acme Corp", "acme.com")
     assert "VP" in result
 
 
@@ -149,7 +149,7 @@ def test_search_contacts_no_results_suggests_scrape(monkeypatch):
     )
     from ai_sdr.tools.enrichment import search_contacts
 
-    result = search_contacts("Acme Corp", "acme.com")
+    result = search_contacts.func("Acme Corp", "acme.com")
     assert "scrape_team_page" in result
 
 
@@ -162,7 +162,7 @@ def test_search_competitors_returns_snippets(monkeypatch):
     )
     from ai_sdr.tools.enrichment import search_competitors
 
-    result = search_competitors("Acme Corp", "SaaS")
+    result = search_competitors.func("Acme Corp", "SaaS")
     assert "Acme" in result or "competitor" in result.lower()
 
 
@@ -173,5 +173,5 @@ def test_search_competitors_no_results(monkeypatch):
     )
     from ai_sdr.tools.enrichment import search_competitors
 
-    result = search_competitors("Unknown Corp")
+    result = search_competitors.func("Unknown Corp")
     assert "No competitor information found" in result

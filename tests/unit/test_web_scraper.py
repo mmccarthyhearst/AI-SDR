@@ -15,7 +15,7 @@ def test_scrape_website_returns_text():
     )
     from ai_sdr.tools.web_scraper import scrape_website
 
-    result = scrape_website("https://example.com")
+    result = scrape_website.func("https://example.com")
     assert "Hello world" in result
 
 
@@ -35,7 +35,7 @@ def test_scrape_website_strips_scripts():
     )
     from ai_sdr.tools.web_scraper import scrape_website
 
-    result = scrape_website("https://example.com/page")
+    result = scrape_website.func("https://example.com/page")
     assert "Visible content" in result
     assert "var x = 1" not in result
 
@@ -48,7 +48,7 @@ def test_scrape_website_handles_http_error():
     )
     from ai_sdr.tools.web_scraper import scrape_website
 
-    result = scrape_website("https://broken.example.com")
+    result = scrape_website.func("https://broken.example.com")
     assert result.startswith("Error scraping")
 
 
@@ -67,7 +67,7 @@ def test_detect_tech_stack_finds_wordpress():
     )
     from ai_sdr.tools.web_scraper import detect_tech_stack
 
-    result = detect_tech_stack("https://wpsite.example.com")
+    result = detect_tech_stack.func("https://wpsite.example.com")
     assert "WordPress" in result
 
 
@@ -86,7 +86,7 @@ def test_detect_tech_stack_finds_hubspot():
     )
     from ai_sdr.tools.web_scraper import detect_tech_stack
 
-    result = detect_tech_stack("https://hssite.example.com")
+    result = detect_tech_stack.func("https://hssite.example.com")
     assert "HubSpot" in result
 
 
@@ -101,7 +101,7 @@ def test_detect_tech_stack_no_tech_found():
     )
     from ai_sdr.tools.web_scraper import detect_tech_stack
 
-    result = detect_tech_stack("https://plain.example.com")
+    result = detect_tech_stack.func("https://plain.example.com")
     assert "No recognizable technologies" in result
 
 
@@ -120,7 +120,7 @@ def test_extract_contact_emails_finds_emails():
     )
     from ai_sdr.tools.web_scraper import extract_contact_emails
 
-    result = extract_contact_emails("https://contact.example.com")
+    result = extract_contact_emails.func("https://contact.example.com")
     assert "info@acmecorp.com" in result
     assert "sales@acmecorp.com" in result
 
@@ -141,7 +141,7 @@ def test_extract_contact_emails_filters_noise():
     )
     from ai_sdr.tools.web_scraper import extract_contact_emails
 
-    result = extract_contact_emails("https://noisy.example.com")
+    result = extract_contact_emails.func("https://noisy.example.com")
     # The real address should be present
     assert "real@company.io" in result
     # Noise addresses should be filtered
@@ -159,7 +159,7 @@ def test_extract_contact_emails_none_found():
     )
     from ai_sdr.tools.web_scraper import extract_contact_emails
 
-    result = extract_contact_emails("https://noemail.example.com")
+    result = extract_contact_emails.func("https://noemail.example.com")
     assert "No email addresses found" in result
 
 
@@ -179,7 +179,7 @@ def test_scrape_team_page_finds_linkedin():
     )
     from ai_sdr.tools.web_scraper import scrape_team_page
 
-    result = scrape_team_page("https://company.example.com/team")
+    result = scrape_team_page.func("https://company.example.com/team")
     assert "linkedin.com/in/jane-doe" in result
     assert "linkedin.com/in/john-smith" in result
 
@@ -200,5 +200,5 @@ def test_scrape_franchise_info_finds_unit_count():
     )
     from ai_sdr.tools.web_scraper import scrape_franchise_info
 
-    result = scrape_franchise_info("https://franchise.example.com")
+    result = scrape_franchise_info.func("https://franchise.example.com")
     assert "1,200 locations" in result
