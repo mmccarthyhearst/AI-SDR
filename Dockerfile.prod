@@ -1,0 +1,23 @@
+# Builder Stage
+FROM node:14 AS builder
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
+COPY . .
+RUN npm run build
+
+# API Stage
+FROM node:14 AS api
+WORKDIR /app
+COPY --from=builder /app/dist /app
+CMD ["node", "server.js"]
+
+# Worker Stage
+FROM node:14 AS worker
+WORKDIR /app
+COPY --from=builder /app/dist /app
+CMD ["node", "worker.js"]
+
+# Dashboard Stage
+FROM nginx:alpine AS dashboard
+COPY --from=builder /app/dashboard/dist /usr/share/nginx/html
