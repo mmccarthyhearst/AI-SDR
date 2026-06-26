@@ -1,7 +1,6 @@
 """Routing service — custom rules engine for lead triage."""
 
 import uuid
-from typing import Any
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
