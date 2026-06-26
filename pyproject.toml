@@ -64,6 +64,12 @@ line-length = 100
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "N", "W"]
+ignore = ["E501", "I001"]
+
+[tool.ruff.lint.per-file-ignores]
+"src/ai_sdr/ui/pages/*.py" = ["N999", "E741"]
+"src/ai_sdr/**/__init__.py" = ["F401"]
+"tests/**/*.py" = ["F401", "F841"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
