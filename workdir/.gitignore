@@ -1,0 +1,4 @@
+# Keep this folder available as an agent handoff workspace, but do not commit generated artifacts.
+*
+!.gitignore
+!README.md
